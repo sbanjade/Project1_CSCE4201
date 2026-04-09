@@ -13,11 +13,176 @@ from __future__ import annotations
 
 import math
 import random
+from itertools import permutations
 from typing import Callable, List, Sequence, Tuple
 
 
 # ============================================================================
-# CORE SCHEDULING HELPERS (from R1/R2)
+# R1: VALIDATION AND JOB ALLOCATION
+# ============================================================================
+
+
+def validate_proc_times(proc_times: Sequence[Sequence[int]]) -> Tuple[int, int]:
+    """Validate processing times and return (num_jobs, num_operations).
+    
+    Ensures:
+    - proc_times is not empty (returns (0, 0) if empty)
+    - All jobs have the same number of operations
+    - All processing times are non-negative
+    
+    Returns:
+        Tuple of (num_jobs, num_operations)
+    
+    Raises:
+        ValueError if validation fails
+    """
+    if not proc_times:
+        return (0, 0)
+    
+    num_jobs = len(proc_times)
+    num_operations = len(proc_times[0])
+    
+    for job_id, job_times in enumerate(proc_times):
+        if len(job_times) != num_operations:
+            raise ValueError(
+                f"Job {job_id} has {len(job_times)} operations "
+                f"but expected {num_operations}"
+            )
+        for op_idx, proc_time in enumerate(job_times):
+            if proc_time < 0:
+                raise ValueError(
+                    f"Job {job_id}, operation {op_idx} has "
+                    f"negative processing time: {proc_time}"
+                )
+    
+    return (num_jobs, num_operations)
+
+
+def validate_machine_count(M: int) -> None:
+    """Validate that machine count is positive.
+    
+    Raises:
+        ValueError if M <= 0
+    """
+    if M <= 0:
+        raise ValueError(f"Machine count must be positive, got M={M}")
+
+
+def validate_job_sequence(job_sequence: Sequence[int], num_jobs: int) -> None:
+    """Validate that job_sequence is a valid permutation of [0, 1, ..., num_jobs-1].
+    
+    Raises:
+        ValueError if not a valid permutation
+    """
+    expected_jobs = set(range(num_jobs))
+    actual_jobs = set(job_sequence)
+    
+    if actual_jobs != expected_jobs:
+        raise ValueError(
+            f"Job sequence is not a valid permutation. "
+            f"Expected {expected_jobs}, got {actual_jobs}"
+        )
+    
+    if len(job_sequence) != len(set(job_sequence)):
+        raise ValueError("Job sequence contains duplicates")
+
+
+def allocate_operations_to_machines(
+    job_sequence: Sequence[int],
+    proc_times: Sequence[Sequence[int]],
+    M: int,
+) -> List[dict]:
+    """Allocate operations to machines and return detailed schedule.
+    
+    For each operation, assigns jobs in the given sequence order to machines.
+    Each job starts when both the machine and the job's previous operation are ready.
+    
+    Args:
+        job_sequence: Order to schedule jobs [0, 1, ..., num_jobs-1]
+        proc_times: 2D table of processing times [job][operation]
+        M: Number of machines
+    
+    Returns:
+        List of scheduled operations, each containing:
+        - job_id: the job number
+        - operation_index: the operation number
+        - machine: the assigned machine
+        - start_time: when operation starts
+        - end_time: when operation ends
+    """
+    # Validate inputs
+    num_jobs, num_operations = validate_proc_times(proc_times)
+    validate_machine_count(M)
+    validate_job_sequence(job_sequence, num_jobs)
+    
+    machine_available = [0] * M
+    job_ready = [0] * num_jobs
+    schedule = []
+    
+    for op_idx in range(num_operations):
+        machine = op_idx % M
+        
+        for job_id in job_sequence:
+            start_time = max(machine_available[machine], job_ready[job_id])
+            end_time = start_time + proc_times[job_id][op_idx]
+            
+            operation = {
+                "job_id": job_id,
+                "operation_index": op_idx,
+                "machine": machine,
+                "start_time": start_time,
+                "end_time": end_time,
+            }
+            schedule.append(operation)
+            
+            machine_available[machine] = end_time
+            job_ready[job_id] = end_time
+    
+    return schedule
+
+
+# ============================================================================
+# R2: BRUTE-FORCE OPTIMAL SOLUTION
+# ============================================================================
+
+
+def brute_force_optimal_sequence(
+    proc_times: Sequence[Sequence[int]],
+    M: int,
+) -> Tuple[List[int], int]:
+    """Find optimal job sequence using brute-force enumeration.
+    
+    Tests all J! permutations and returns the sequence with minimum makespan.
+    WARNING: Only feasible for small J (<= 10 recommended).
+    
+    Args:
+        proc_times: 2D table of processing times [job][operation]
+        M: Number of machines
+    
+    Returns:
+        Tuple of (best_sequence, best_makespan)
+    """
+    num_jobs = len(proc_times)
+    
+    if num_jobs == 0:
+        return ([], 0)
+    
+    best_sequence: List[int] = []
+    best_makespan = math.inf
+    
+    for permutation in permutations(range(num_jobs)):
+        current_sequence = list(permutation)
+        current_makespan = evaluate_sequence(current_sequence, proc_times, M)
+        
+        if current_makespan < best_makespan:
+            best_sequence = current_sequence
+            best_makespan = current_makespan
+    
+    return (best_sequence, int(best_makespan))
+
+
+# ============================================================================
+# R3: SIMULATED ANNEALING SCHEDULING
 # ============================================================================
 
 
