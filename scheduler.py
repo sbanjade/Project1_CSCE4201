@@ -143,59 +143,55 @@ def percent_improvement(initial: int, best: int) -> float:
 
 def run_r4_experiment() -> List[int]:
     """R4: SA on large instance (J=50, N=3, M=5)."""
-    print("\n" + "=" * 70)
-    print("R4: LARGE INSTANCE EXPERIMENT (J=50, N=3, M=5)")
-    print("=" * 70)
+    print("\nR4: Random Large Instance (J=50, N=3, M=5)")
     
     random.seed(42)
     J, N, M = 50, 3, 5
     proc_times = [[random.randint(5, 50) for _ in range(N)] for _ in range(J)]
     
     seed, T0, alpha, iters_per_temp, min_temp = 42, 5000, 0.95, 100, 1
-    print(f"Instance: J={J}, N={N}, M={M}")
-    print(f"SA Parameters: seed={seed}, T0={T0}, alpha={alpha}, iters_per_temp={iters_per_temp}, min_temp={min_temp}")
+    print(f"Seed: {seed}")
+    print(f"SA Parameters: T0={T0}, alpha={alpha}, iterations_per_temperature={iters_per_temp}, min_temp={min_temp}")
     
     initial_sequence = generate_initial_sequence(J)
     initial_makespan = evaluate_sequence(initial_sequence, proc_times, M)
-    print(f"\nInitial makespan (sequence order): {initial_makespan}")
+    print(f"Initial random sequence makespan: {initial_makespan}")
     
     sa_sequence, sa_makespan, history = simulated_annealing(
         proc_times, M, seed=seed, T0=T0, alpha=alpha,
         iters_per_temp=iters_per_temp, min_temp=min_temp
     )
     
-    print(f"SA best makespan:               {sa_makespan}")
+    print(f"Best SA makespan: {sa_makespan}")
     improvement = percent_improvement(initial_makespan, sa_makespan)
-    print(f"% Improvement:                  {improvement:.2f}%")
+    print(f"Percent improvement: {improvement:.2f}%")
     return history
 
 
 def run_r5_experiment() -> List[int]:
     """R5: SA on different large instance (J=50, N=5, M=3)."""
-    print("\n" + "=" * 70)
-    print("R5: LARGE INSTANCE EXPERIMENT (J=50, N=5, M=3)")
-    print("=" * 70)
+    print("\nR5: Random Large Instance (J=50, N=5, M=3)")
     
     random.seed(123)
     J, N, M = 50, 5, 3
     proc_times = [[random.randint(5, 50) for _ in range(N)] for _ in range(J)]
     
     seed, T0, alpha, iters_per_temp, min_temp = 42, 5000, 0.95, 100, 1
-    print(f"Instance: J={J}, N={N}, M={M}")
-    print(f"SA Parameters: seed={seed}, T0={T0}, alpha={alpha}, iters_per_temp={iters_per_temp}, min_temp={min_temp}")
+    print(f"Seed: {seed}")
+    print(f"SA Parameters: T0={T0}, alpha={alpha}, iterations_per_temperature={iters_per_temp}, min_temp={min_temp}")
     
     initial_sequence = generate_initial_sequence(J)
     initial_makespan = evaluate_sequence(initial_sequence, proc_times, M)
-    print(f"\nInitial makespan (sequence order): {initial_makespan}")
+    print(f"Initial random sequence makespan: {initial_makespan}")
     
     sa_sequence, sa_makespan, history = simulated_annealing(
         proc_times, M, seed=seed, T0=T0, alpha=alpha,
         iters_per_temp=iters_per_temp, min_temp=min_temp
     )
     
-    print(f"SA best makespan:               {sa_makespan}")
+    print(f"Best SA makespan: {sa_makespan}")
     improvement = percent_improvement(initial_makespan, sa_makespan)
-    print(f"% Improvement:                  {improvement:.2f}%")
+    print(f"Percent improvement: {improvement:.2f}%")
     return history
 
 
@@ -203,9 +199,6 @@ def main() -> None:
     """Run all experiments: R4 and R5."""
     history_r4 = run_r4_experiment()
     history_r5 = run_r5_experiment()
-    print("\n" + "=" * 70)
-    print("All R3/R4/R5 experiments completed successfully!")
-    print("=" * 70)
 
 
 if __name__ == "__main__":
