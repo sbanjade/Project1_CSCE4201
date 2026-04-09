@@ -1,28 +1,35 @@
-from scheduler import allocate_ops_to_machines, compute_makespan, sequence_makespan, brute_force_optimal
+from scheduler import (
+    allocate_ops_to_machines,
+    brute_force_optimal_sequence,
+    compute_makespan,
+    evaluate_sequence,
+    generate_initial_sequence,
+)
 
 
-# small test using the R3 table from the project
-proc_times = [
-    [5, 2, 7, 4],
-    [3, 6, 2, 5],
-    [4, 5, 3, 6],
-    [3, 2, 4, 6],
-    [7, 3, 5, 2],
-    [5, 6, 7, 4]
-]
+def main() -> None:
+    proc_times = [
+        [5, 2, 7, 4],
+        [3, 6, 2, 5],
+        [4, 5, 3, 6],
+        [2, 4, 6, 3],
+        [7, 3, 5, 2],
+        [6, 7, 4, 5],
+    ]
+    M = 4
 
-M = 4
-job_sequence = [0, 1, 2, 3, 4, 5]
+    job_sequence = generate_initial_sequence(len(proc_times))
+    schedule = allocate_ops_to_machines(job_sequence, proc_times, M)
+    makespan = compute_makespan(schedule)
 
-schedule = allocate_ops_to_machines(job_sequence, proc_times, M)
-makespan = compute_makespan(schedule)
+    print("Sequence:", job_sequence)
+    print("Makespan from compute_makespan:", makespan)
+    print("Makespan from evaluate_sequence:", evaluate_sequence(job_sequence, proc_times, M))
 
-print("Schedule:")
-for item in schedule:
-    print(item)
+    best_sequence, best_makespan = brute_force_optimal_sequence(proc_times, M)
+    print("Best sequence:", best_sequence)
+    print("Optimal makespan:", best_makespan)
 
-print("\nMakespan for this sequence:", makespan)
 
-best_seq, best_cost = brute_force_optimal(proc_times, M)
-print("\nBest sequence found by brute force:", best_seq)
-print("Optimal makespan:", best_cost)
+if __name__ == "__main__":
+    main()
