@@ -15,8 +15,6 @@ import math
 import random
 from typing import List, Sequence, Tuple
 
-import matplotlib.pyplot as plt
-
 
 # ============================================================================
 # CORE SCHEDULING HELPERS (from R1/R2)
