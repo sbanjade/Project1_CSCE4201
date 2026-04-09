@@ -6,7 +6,7 @@ This file implements Simulated Annealing for permutation flow-shop scheduling:
 - R4: Large instance experiment (J=50, N=3, M=5)
 - R5: Large instance experiment (J=50, N=5, M=3)
 
-Uses the core scheduling functions from r1_r2_pseudocode.py
+Core scheduling functions (from R1/R2) are included as helpers.
 """
 
 from __future__ import annotations
@@ -17,11 +17,48 @@ from typing import List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 
-# Import core scheduling functions from R1/R2
-from r1_r2_pseudocode import (
-    evaluate_sequence,
-    generate_initial_sequence,
-)
+
+# ============================================================================
+# CORE SCHEDULING HELPERS (from R1/R2)
+# ============================================================================
+
+
+def evaluate_sequence(
+    job_sequence: Sequence[int],
+    proc_times: Sequence[Sequence[int]],
+    M: int,
+) -> int:
+    """Evaluate a sequence and return makespan.
+    
+    Algorithm:
+    1. For each operation, schedule jobs in sequence order
+    2. Each job starts when both machine and previous job are ready
+    3. Return maximum completion time across all operations
+    """
+    if not proc_times:
+        return 0
+    
+    num_jobs = len(proc_times)
+    num_operations = len(proc_times[0])
+    
+    machine_available = [0] * M
+    job_ready = [0] * num_jobs
+    
+    for op_idx in range(num_operations):
+        machine = op_idx % M
+        for job_id in job_sequence:
+            start = max(machine_available[machine], job_ready[job_id])
+            end = start + proc_times[job_id][op_idx]
+            machine_available[machine] = end
+            job_ready[job_id] = end
+    
+    return max(machine_available) if machine_available else 0
+
+
+def generate_initial_sequence(num_jobs: int) -> List[int]:
+    """Return the default initial sequence [0, 1, ..., num_jobs-1]."""
+    return list(range(num_jobs))
+
 
 
 def swap_neighbor(sequence: Sequence[int]) -> List[int]:
