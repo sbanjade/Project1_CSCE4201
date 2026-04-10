@@ -16,9 +16,9 @@ import random
 from itertools import permutations
 from typing import Callable, List, Sequence, Tuple
 
-# =============================================================================
+
 # R1: ALLOCATION AND VALIDATION
-# =============================================================================
+
 
 def validate_proc_times(proc_times: Sequence[Sequence[int]]) -> Tuple[int, int]:
     """Validate processing times and return (num_jobs, num_operations)."""
@@ -110,9 +110,9 @@ def allocate_operations_to_machines(
     return schedule
 
 
-# =============================================================================
+
 # R2: MAKESPAN COMPUTATION
-# =============================================================================
+
 
 def compute_makespan(schedule: List[dict]) -> int:
     """
@@ -151,9 +151,9 @@ def evaluate_sequence(
     return max(job_ready) if job_ready else 0
 
 
-# ═══════════════════════════════════════════════════════════════════════════
+
 # R2 (Additional): BRUTE-FORCE OPTIMAL
-# ═══════════════════════════════════════════════════════════════════════════
+
 
 def brute_force_optimal_sequence(
     proc_times: Sequence[Sequence[int]],
@@ -179,9 +179,9 @@ def brute_force_optimal_sequence(
     return (best_sequence, int(best_makespan))
 
 
-# =============================================================================
+
 # SA: SIMULATED ANNEALING ALGORITHM
-# =============================================================================
+
 
 def generate_initial_sequence(num_jobs: int) -> List[int]:
     """Generate initial sequence [0, 1, ..., num_jobs-1]."""
@@ -360,9 +360,8 @@ def percent_improvement(initial: int, best: int) -> float:
     return ((initial - best) / initial) * 100.0
 
 
-# ═══════════════════════════════════════════════════════════════════════════
+
 # R3: KNOWN SMALL INSTANCE (J=6, N=4, M=4)
-# ═══════════════════════════════════════════════════════════════════════════
 
 def run_r3_experiment() -> dict:
     """
@@ -462,9 +461,9 @@ def run_r3_experiment() -> dict:
     }
 
 
-# =============================================================================
+
 # R4: LARGE INSTANCE (J=50, N=3, M=5)
-# =============================================================================
+
 
 def run_r4_experiment() -> dict:
     """
@@ -537,9 +536,9 @@ def run_r4_experiment() -> dict:
     }
 
 
-# =============================================================================
+
 # R5: LARGE INSTANCE (J=50, N=5, M=3)
-# =============================================================================
+
 
 def run_r5_experiment() -> dict:
     """
@@ -612,9 +611,9 @@ def run_r5_experiment() -> dict:
     }
 
 
-# ═══════════════════════════════════════════════════════════════════════════
+
 # MAIN
-# ═══════════════════════════════════════════════════════════════════════════
+
 
 def main() -> None:
     """Run all experiments: R3, R4, R5."""
