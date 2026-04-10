@@ -2,18 +2,18 @@
 ## CSCE 4201 Group Project Report
 
 **Date:** April 2026  
-**Group:** [Student 1: Your Name] and [Student 2: Teammate Name]
+**Group:** Shrish Acharya and Sachin Banjade
 
 ---
 
 ## SECTION 1: TEAM MEMBERS & CONTRIBUTIONS
 
-**Student 1: [Your Name]**
+**Student 1: Shrish Acharya
 - R1/R2 algorithm design and implementation
 - SA kernel and neighbor operators
 - Brute-force optimization for validation
 
-**Student 2: [Teammate Name]**  
+**Student 2: Sachin Banjade
 - R3, R4, R5 experiment implementation
 - Testing framework and assertions
 - Results analysis and documentation
