@@ -8,7 +8,7 @@ This project implements Simulated Annealing (SA) for flow-shop scheduling optimi
 ## Files
 
 - **scheduler.py** – Main implementation (R1–R5 experiments)
-- **test_scheduler.py** – Test suite (21 assertion-based tests)
+- **test_scheduler.py** – Test suite (22 assertion-based tests)
 - **PartA_Pseudocode.md** – R1 and R2 pseudocode
 - **PartB_Report.md** – Results and analysis
 - **README.md** – This file
