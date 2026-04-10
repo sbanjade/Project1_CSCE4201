@@ -16,11 +16,7 @@ import random
 from itertools import permutations
 from typing import Callable, List, Sequence, Tuple
 
-
-# ============================================================================
 # R1: VALIDATION AND JOB ALLOCATION
-# ============================================================================
-
 
 def validate_proc_times(proc_times: Sequence[Sequence[int]]) -> Tuple[int, int]:
     """Validate processing times and return (num_jobs, num_operations).
@@ -140,11 +136,7 @@ def allocate_operations_to_machines(
     
     return schedule
 
-
-# ============================================================================
 # R2: BRUTE-FORCE OPTIMAL SOLUTION
-# ============================================================================
-
 
 def brute_force_optimal_sequence(
     proc_times: Sequence[Sequence[int]],
@@ -180,11 +172,7 @@ def brute_force_optimal_sequence(
     
     return (best_sequence, int(best_makespan))
 
-
-# ============================================================================
 # R3: SIMULATED ANNEALING SCHEDULING
-# ============================================================================
-
 
 def evaluate_sequence(
     job_sequence: Sequence[int],
@@ -229,7 +217,8 @@ def generate_initial_sequence(num_jobs: int) -> List[int]:
 
 
 def generate_greedy_sequence(proc_times: Sequence[Sequence[int]]) -> List[int]:
-    """Build a simple priority order using total job processing time."""
+    """Generate initial sequence by total job processing time."""
+    # Order jobs by descending total processing time
     return sorted(range(len(proc_times)), key=lambda job_id: -sum(proc_times[job_id]))
 
 
@@ -267,7 +256,8 @@ def two_opt_neighbor(sequence: Sequence[int]) -> List[int]:
 
 
 def generate_neighbor(sequence: Sequence[int]) -> List[int]:
-    """Randomly choose one of the supported neighborhood moves."""
+    """Randomly select and apply one neighborhood operator."""
+    # Three moves: swap, insertion, 2-opt
     neighbor_strategies: List[Callable[[Sequence[int]], List[int]]] = [
         swap_neighbor,
         insertion_neighbor,
@@ -278,7 +268,8 @@ def generate_neighbor(sequence: Sequence[int]) -> List[int]:
 
 
 def should_accept(delta: int, temperature: float) -> bool:
-    """Accept all better moves and sometimes accept worse ones."""
+    """Accept better moves always; worse moves with decreasing probability."""
+    # Metropolis criterion
     if delta <= 0:
         return True
     if temperature <= 0:
@@ -301,6 +292,7 @@ def simulated_annealing(
     random.seed(seed)
     num_jobs = len(proc_times)
 
+    # Initialize current solution
     if initial_sequence is None:
         current_sequence = generate_initial_sequence(num_jobs)
         random.shuffle(current_sequence)
@@ -308,21 +300,26 @@ def simulated_annealing(
         current_sequence = list(initial_sequence)
     current_makespan = evaluate_sequence(current_sequence, proc_times, M)
 
+    # Initialize best solution tracker
     best_sequence = list(current_sequence)
     best_makespan = current_makespan
     history = [best_makespan] if log_history else []
 
+    # Cooling loop
     temperature = T0
     while temperature >= min_temp:
+        # Local search iterations at current temperature
         for _ in range(iters_per_temp):
             neighbor_sequence = generate_neighbor(current_sequence)
             neighbor_makespan = evaluate_sequence(neighbor_sequence, proc_times, M)
             delta = neighbor_makespan - current_makespan
 
+            # Acceptance decision
             if should_accept(delta, temperature):
                 current_sequence = neighbor_sequence
                 current_makespan = neighbor_makespan
 
+            # Update best if improved
             if current_makespan < best_makespan:
                 best_sequence = list(current_sequence)
                 best_makespan = current_makespan
@@ -330,6 +327,7 @@ def simulated_annealing(
             if log_history:
                 history.append(best_makespan)
 
+        # Decrease temperature
         temperature *= alpha
 
     return best_sequence, best_makespan, history
@@ -346,7 +344,8 @@ def multi_start_simulated_annealing(
     num_restarts: int = 5,
     log_history: bool = True,
 ) -> Tuple[List[int], int, List[int]]:
-    """Run several SA restarts and keep the best global solution."""
+    """Run multiple SA restarts with different initial solutions."""
+    # Create diverse starting solutions: greedy + random shuffles
     seed_sequences: List[List[int]] = [generate_greedy_sequence(proc_times)]
     for restart_index in range(max(0, num_restarts - 1)):
         random.seed(seed + restart_index)
@@ -358,6 +357,7 @@ def multi_start_simulated_annealing(
     best_makespan = math.inf
     combined_history: List[int] = []
 
+    # Run SA from each starting solution
     for restart_index, initial_sequence in enumerate(seed_sequences):
         restart_seed = seed + restart_index
         candidate_sequence, candidate_makespan, candidate_history = simulated_annealing(
@@ -372,6 +372,7 @@ def multi_start_simulated_annealing(
             initial_sequence=initial_sequence,
         )
 
+        # Keep global best across restarts
         if candidate_makespan < best_makespan:
             best_sequence = candidate_sequence
             best_makespan = candidate_makespan
@@ -388,6 +389,8 @@ def percent_improvement(initial: int, best: int) -> float:
         return 0.0
     return ((initial - best) / initial) * 100.0
 
+
+# R4: LARGE INSTANCE EXPERIMENTS (J=50, N=3, M=5)
 
 def run_r4_experiment() -> List[int]:
     """R4: SA on large instance (J=50, N=3, M=5)."""
@@ -415,6 +418,8 @@ def run_r4_experiment() -> List[int]:
     print(f"Percent improvement: {improvement:.2f}%")
     return history
 
+
+# R5: LARGE INSTANCE EXPERIMENTS (J=50, N=5, M=3)
 
 def run_r5_experiment() -> List[int]:
     """R5: SA on different large instance (J=50, N=5, M=3)."""
